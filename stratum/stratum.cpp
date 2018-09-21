@@ -154,10 +154,15 @@ YAAMP_ALGO g_algos[] =
 	{"dmd-gr", groestl_hash, 0x100, 0, 0}, /* diamond (double groestl) */
 	{"myr-gr", groestlmyriad_hash, 1, 0, 0}, /* groestl + sha 64 */
 	{"skein", skein_hash, 1, 0, 0},
+	{"sonoa", sonoa_hash, 1, 0, 0},
 	{"tribus", tribus_hash, 1, 0, 0},
 	{"keccak", keccak256_hash, 0x80, 0, sha256_hash_hex },
 	{"keccakc", keccak256_hash, 0x100, 0, 0},
+	{"hex", hex_hash, 0x100, 0, sha256_hash_hex },
+	
 	{"phi", phi_hash, 1, 0, 0},
+	{"phi2", phi2_hash, 0x100, 0, 0},
+
 	{"polytimos", polytimos_hash, 1, 0, 0},
 	{"skunk", skunk_hash, 1, 0, 0},
 
@@ -165,6 +170,7 @@ YAAMP_ALGO g_algos[] =
 	{"lbry", lbry_hash, 0x100, 0, 0},
 	{"luffa", luffa_hash, 1, 0, 0},
 	{"penta", penta_hash, 1, 0, 0},
+	{"rainforest", rainforest_hash, 0x100, 0, 0},
 	{"skein2", skein2_hash, 1, 0, 0},
 	{"yescrypt", yescrypt_hash, 0x10000, 0, 0},
 	{"yescryptR16", yescryptR16_hash, 0x10000, 0, 0 },
@@ -176,8 +182,10 @@ YAAMP_ALGO g_algos[] =
 	{"m7m", m7m_hash, 0x10000, 0, 0},
 	{"veltor", veltor_hash, 1, 0, 0},
 	{"velvet", velvet_hash, 0x10000, 0, 0},
-	{"argon2", argon2_hash, 0x10000, 0, sha256_hash_hex },
+	{"argon2", argon2a_hash, 0x10000, 0, sha256_hash_hex },
+	{"argon2d-dyn", argon2d_dyn_hash, 0x10000, 0, 0 }, // Dynamic Argon2d Implementation
 	{"vitalium", vitalium_hash, 1, 0, 0},
+	{"aergo", aergo_hash, 1, 0, 0},
 
 	{"sha256t", sha256t_hash, 1, 0, 0}, // sha256 3x
 

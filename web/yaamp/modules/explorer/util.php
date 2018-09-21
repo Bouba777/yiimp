@@ -160,6 +160,9 @@ function versionToAlgo($coin, $version)
 	$algos['DGC'] = array(
 		0=>'scrypt', 1=>'sha256', 2=>'x11'
 	);
+	$algos['DUO'] = array(
+		0=>'sha256', 1=>'scrypt'
+	);
 	$algos['J'] = array(
 		2 =>'sha256', 3=>'x11', 4=>'x13', 5=>'x15', 6=>'scrypt',
 		7 =>'nist5',  8 =>'myr-gr', 9=>'penta', 10=>'whirlpool',
@@ -180,6 +183,9 @@ function versionToAlgo($coin, $version)
 	$algos['XVG'] = array(
 		0=>'scrypt', 1=>'scrypt', 2=>'myr-gr', 3=>'x17', 4=>'blake2s', 10=>'lyra2v2',
 	);
+	$algos['XSH'] = array(
+		0=>'scrypt', 1=>'scrypt', 2=>'myr-gr', 3=>'x17', 4=>'blake2s', 10=>'lyra2v2', 11=>'x16s',
+	);
 	$algos['ARG'] = array(
 		0=>'sha256', 1=>'scrypt', 2=>'lyra2v2', 3=>'myr-gr', 4=>'argon2d', 5=>'yescrypt',
 	);
@@ -192,6 +198,8 @@ function versionToAlgo($coin, $version)
 		return arraySafeVal($algos[$symbol], ($version - 9), '');
 	else if($symbol == 'XVG')
 		return arraySafeVal($algos[$symbol], ($version >> 11), 'scrypt');
+	else if($symbol == 'XSH')
+		return arraySafeVal($algos[$symbol], (($version-536870000) >> 11), 'scrypt');
 	else if (isset($algos[$symbol]))
 		return arraySafeVal($algos[$symbol], ($version >> 9) & 7, '');
 	return false;

@@ -15,10 +15,13 @@ function strip_data($data)
 
 require_once("bitstamp.php");
 require_once("bittrex.php");
+require_once("bitz.php");
 require_once("bleutrade.php");
 require_once("ccexapi.php");
 require_once("cexio.php");
+require_once("crex24.php");
 require_once("cryptobridge.php");
+require_once("gateio.php");
 require_once("graviex.php");
 require_once("cryptohub.php");
 require_once("kraken.php");
@@ -81,6 +84,8 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://www.binance.com/trade.html?symbol={$symbol}_{$base}";
 	else if($market == 'bittrex')
 		$url = "https://bittrex.com/Market/Index?MarketName={$base}-{$symbol}";
+	else if($market == 'bitz')
+		$url = "https://www.bit-z.com/exchange/{$symbol}_{$base}";
 	else if($market == 'poloniex')
 		$url = "https://poloniex.com/exchange#{$lowbase}_{$lowsymbol}";
 	else if($market == 'bleutrade')
@@ -93,6 +98,8 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://www.coinexchange.io/market/{$symbol}/{$base}";
 	else if($market == 'coinsmarkets')
 		$url = "https://coinsmarkets.com/trade-{$base}-{$symbol}.htm";
+	else if($market == 'crex24')
+		$url = "https://crex24.com/exchange/{$symbol}-{$base}";
 	else if($market == 'cryptobridge')
 		$url = "https://wallet.crypto-bridge.org/market/BRIDGE.{$symbol}_BRIDGE.{$base}";
 	else if($market == 'cryptohub')
@@ -105,6 +112,8 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://c-cex.com/?p={$lowsymbol}-{$lowbase}";
 	else if($market == 'empoex')
 		$url = "http://www.empoex.com/trade/{$symbol}-{$base}";
+	else if($market == 'gateio')
+		$url = "https://gate.io/trade/{$symbol}_{$base}";
 	else if($market == 'graviex')
 		$url = "https://graviex.net/markets/{$lowsymbol}{$lowbase}";
 	else if($market == 'jubi')

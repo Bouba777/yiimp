@@ -13,6 +13,7 @@ function updateRawcoins()
 	exchange_set_default('empoex', 'disabled', true);
 	exchange_set_default('coinexchange', 'disabled', true);
 	exchange_set_default('coinsmarkets', 'disabled', true);
+	exchange_set_default('gateio', 'disabled', true);
 	exchange_set_default('jubi', 'disabled', true);
 	exchange_set_default('nova', 'disabled', true);
 	exchange_set_default('stocksexchange', 'disabled', true);
@@ -35,6 +36,20 @@ function updateRawcoins()
 		}
 	}
 
+	if (!exchange_get('bitz', 'disabled')) {
+		$list = bitz_api_query('tickerall');
+		if (!empty($list)) {
+			dborun("UPDATE markets SET deleted=true WHERE name='bitz'");
+			foreach($list as $c => $ticker) {
+				$e = explode('_', $c);
+				if (strtoupper($e[1]) !== 'BTC')
+					continue;
+				$symbol = strtoupper($e[0]);
+				updateRawCoin('bitz', $symbol);
+			}
+		}
+	}
+
 	if (!exchange_get('bleutrade', 'disabled')) {
 		$list = bleutrade_api_query('public/getcurrencies');
 		if(isset($list->result) && !empty($list->result))
@@ -46,6 +61,19 @@ function updateRawcoins()
 					continue;
 				}
 				updateRawCoin('bleutrade', $currency->Currency, $currency->CurrencyLong);
+			}
+		}
+	}
+
+	if (!exchange_get('crex24', 'disabled')) {
+		$list = crex24_api_query('currencies');
+		if(is_array($list) && !empty($list)) {
+			dborun("UPDATE markets SET deleted=true WHERE name='crex24'");
+			foreach ($list as $currency) {
+				$symbol = objSafeVal($currency, 'symbol');
+				$name = objSafeVal($currency, 'name');
+				if ($currency->isFiat || $currency->isDelisted) continue;
+				updateRawCoin('crex24', $symbol, $name);
 			}
 		}
 	}
@@ -236,6 +264,22 @@ function updateRawcoins()
 		}
 	}
 
+	if (!exchange_get('gateio', 'disabled')) {
+		$json = gateio_api_query('marketlist');
+		$list = arraySafeVal($json,'data');
+		if(!empty($list))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='gateio'");
+			foreach($list as $item) {
+				if ($item['curr_b'] != 'BTC')
+					continue;
+				$symbol = trim(strtoupper($item['symbol']));
+				$name = trim($item['name']);
+				updateRawCoin('gateio', $symbol, $name);
+			}
+		}
+	}
+
 	if (!exchange_get('nova', 'disabled')) {
 		$list = nova_api_query('markets');
 		if(is_object($list) && !empty($list->markets))
@@ -400,13 +444,13 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 			}
 		}
 
-		if (in_array($marketname, array('nova','askcoin','binance','coinexchange','coinsmarkets','cryptobridge','hitbtc'))) {
+		if (in_array($marketname, array('nova','askcoin','binance','bitz','coinexchange','coinsmarkets','cryptobridge','hitbtc'))) {
 			// don't polute too much the db with new coins, its better from exchanges with labels
 			return;
 		}
 
 		// some other to ignore...
-		if (in_array($marketname, array('yobit','kucoin','tradesatoshi')))
+		if (in_array($marketname, array('crex24','yobit','kucoin','tradesatoshi')))
 			return;
 
 		if (market_get($marketname, $symbol, "disabled")) {

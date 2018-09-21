@@ -6,8 +6,6 @@ class ApiController extends CommonController
 
 	/////////////////////////////////////////////////
 
-//	debuglog("saving renter {$_SERVER['REMOTE_ADDR']} $renter->address");
-
 	public function actionStatus()
 	{
 		$client_ip = arraySafeVal($_SERVER,'REMOTE_ADDR');
@@ -82,6 +80,7 @@ class ApiController extends CommonController
 				"estimate_current" => $price,
 				"estimate_last24h" => $avgprice,
 				"actual_last24h" => $btcmhday1,
+				"mbtc_mh_factor" => $algo_unit_factor,
 				"hashrate_last24h" => (double) $hashrate1,
 			);
 			if(YAAMP_RENTAL) {
@@ -285,12 +284,38 @@ class ApiController extends CommonController
 		}
 
 		echo "]";
+
+		if(YAAMP_API_PAYOUTS)
+		{
+			$json_payouts = controller()->memcache->get("api_payouts-".$user->id);
+			if (empty($json_payouts)) {
+				$json_payouts = ",\"payouts\": ";
+				$json_payouts .= "[";
+				$list = getdbolist('db_payouts', "account_id={$user->id} AND completed>0 AND tx IS NOT NULL AND time >= ".(time() - YAAMP_API_PAYOUTS_PERIOD)." ORDER BY time DESC");
+				foreach($list as $j => $payout)
+				{
+					if($j) $json_payouts .= ", ";
+					$json_payouts .= "{";
+					$json_payouts .= "\"time\": ".(0 + $payout->time).",";
+					$json_payouts .= "\"amount\": \"{$payout->amount}\",";
+					$json_payouts .= "\"tx\": \"{$payout->tx}\"";
+					$json_payouts .= "}";
+				}
+				$json_payouts .= "]";
+				controller()->memcache->set("api_payouts-".$user->id, $json_payouts, 60, MEMCACHE_COMPRESSED);
+			}
+			echo str_replace("},","},\n", $json_payouts);
+		}
+
 		echo "}";
 	}
+
+	/////////////////////////////////////////////////
 
 	public function actionRental()
 	{
 		if(!LimitRequest('api-rental', 10)) return;
+		if(!YAAMP_RENTAL) return;
 
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
@@ -335,6 +360,8 @@ class ApiController extends CommonController
 
 	public function actionRental_price()
 	{
+		if(!YAAMP_RENTAL) return;
+
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
 		if(!$renter) return;
@@ -352,6 +379,8 @@ class ApiController extends CommonController
 
 	public function actionRental_hashrate()
 	{
+		if(!YAAMP_RENTAL) return;
+
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
 		if(!$renter) return;
@@ -369,6 +398,8 @@ class ApiController extends CommonController
 
 	public function actionRental_start()
 	{
+		if(!YAAMP_RENTAL) return;
+
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
 		if(!$renter || $renter->balance<=0) return;
@@ -385,6 +416,8 @@ class ApiController extends CommonController
 
 	public function actionRental_stop()
 	{
+		if(!YAAMP_RENTAL) return;
+
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
 		if(!$renter) return;
@@ -399,33 +432,5 @@ class ApiController extends CommonController
 		$job->save();
 	}
 
-// 	public function actionNodeReport()
-// 	{
-// 		$name = getparam('name');
-// 		$uptime = getparam('uptime');
-
-// 		$server = getdbosql('db_servers', "name='$name'");
-// 		if(!$server)
-// 		{
-// 			$server = new db_servers;
-// 			$server->name = $name;
-// 		}
-
-// 		$server->uptime = $uptime;
-// 		$server->save();
-// 	}
-
 }
-
-// function dummy()
-// {
-// 	$uptime = system('uptime');
-// 	$name = system('hostname');
-
-// 	fetch_url("http://".YAAMP_SITE_URL."/api/nodereport?name=$name&uptime=$uptime");
-// }
-
-
-
-
 
